@@ -297,3 +297,36 @@ GEMINI_API_KEY=your_gemini_api_key
 
 * **README.md** – Project setup instructions, architecture overview, and usage guide.
 
+---
+
+
+## Key Design Decision (≤200 words)
+
+The most important design decision I made was to combine **rule-based analytics with the Gemini API**, instead of relying entirely on the LLM to analyze raw activity data.
+
+When a user requests an insight, the backend first calculates key statistics such as total activities, average session duration, most active day, peak time of day, weekly trends, and consistency score using deterministic logic. These computed metrics are then passed to Gemini, which focuses on interpreting the patterns and generating a personalized insight.
+
+I chose this approach because language models excel at identifying patterns and explaining them in natural language, but they are not always reliable for precise calculations. By handling all numerical analysis in code, I can ensure that the statistics shown to users are accurate and consistent. Gemini then adds value by transforming those numbers into actionable observations that feel more human and personalized.
+
+The trade-off is that this hybrid architecture requires more implementation effort than sending raw data directly to the LLM. However, it improves reliability, reduces the risk of incorrect calculations, and keeps the system useful even if the AI service is temporarily unavailable.
+
+In the future, I would like to add anomaly detection and richer behavioral analysis so Gemini can uncover deeper patterns and provide even more meaningful recommendations.
+
+---
+
+## Incomplete Parts / Future Improvements
+
+While the current implementation successfully demonstrates the core idea of combining rule-based analytics with Gemini-powered insights, there are several areas that could be improved in a production-ready version.
+
+| Area                               | Status                | Future Improvement                                                                                                                                                                                                                |
+| ---------------------------------- | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Authentication & Authorization** | ❌ Not Implemented     | Currently, any user can access the system using any `userId`. In a real-world application, I would implement user registration, login, and JWT-based authentication to secure user data.                                          |
+| **Rate Limiting**                  | ❌ Missing             | The API currently has no protection against excessive requests. I would integrate `express-rate-limit` to prevent abuse and control API usage.                                                                                    |
+| **Input Validation**               | ⚠️ Basic              | Input validation is currently minimal. I would use **Zod** to provide robust, type-safe validation for all request payloads and API responses.                                                                                    |
+| **Pagination & Data Scaling**      | ❌ Not Implemented     | Activity records are fetched directly without pagination. For users with large activity histories, I would introduce pagination and filtering to improve performance and scalability.                                             |
+| **Background Processing**          | ❌ Not Implemented     | Gemini API calls are executed synchronously during requests. In a production environment, I would move AI processing to a background queue using tools such as **BullMQ** and Redis to improve responsiveness.                    |
+| **Testing**                        | ❌ Not Implemented     | Due to time constraints, automated tests were not added. I would implement unit and integration tests using **Jest**, including mocks for Gemini API responses and comprehensive coverage for the rule-based analytics engine.    |
+| **Advanced Insights**              | ⚠️ Future Enhancement | The current system focuses on activity trends, consistency, and behavioral patterns. Future versions could incorporate anomaly detection, long-term habit tracking, and more sophisticated behavioral analysis powered by Gemini. |
+
+
+
